@@ -1,0 +1,342 @@
+<!--
+Author: Chao-Hsuan Ke
+Mail: phelpske.dev at gmail dot com
+Last updated: January, 2024 11:00 PM
+-->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>門號解約金計算機 Phone penalty calculator</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/cufon-yui.js"></script>
+<script type="text/javascript" src="js/arial.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-3.1.1.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-90045865-1"></script>
+<script>
+  // Google AdSense (setting)
+	(adsbygoogle = window.adsbygoogle || []).push({
+    google_ad_client: "ca-pub-3248373717625964",
+    enable_page_level_ads: true
+  });
+  
+  // device check (mobile)  
+  if (/iphone|ipod|android|blackberry|mini|windows\sce|palm/i.test(navigator.userAgent.toLowerCase())) {
+  	window.location.replace("https://www.phelps.top/mobile_web/"); 	
+  }  
+  
+  // Google Analytics
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-90045865-1', 'auto');
+  ga('send', 'pageview');
+  
+// Google Global Site Tag
+<!-- Global site tag (gtag.js) - Google Analytics -->
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'UA-90045865-1');
+
+
+  
+  $(document).ready(function() {
+    $("#datepicker_1").datepicker();
+	$("#datepicker_2").datepicker();
+	$("#datepicker_3").datepicker();
+	
+	// Display
+	$("#damages_text").hide();
+	$("#damages_val").hide();
+	
+	// Today
+	var dt = new Date();
+	var Today = (dt.getMonth()+1)+"/"+dt.getDate()+"/"+dt.getFullYear();				
+	$("#datepicker_3").val(Today);	
+	
+	var A_value;
+	var B_value;
+	var C_value;
+	var today_end;
+	var end_manually;
+	var using_day;
+	var total_day;
+	var contract_month;
+	var contract_date;
+	
+	// Contract date selection
+	//contract_month = $('#Contract_month').val();
+	//contract_date = contract_month * 30;
+	contract_date = $('#Contract_month').val();
+	//alert(contract_month * 30);
+	$('#Contract_month').change(function () {    	
+		//contract_date = this.value * 30;		
+		contract_date = this.value;
+		
+		var temp_date = document.getElementById('datepicker_1').value;
+		var d_parts = temp_date.split('/');
+    	var new_date = new Date(d_parts[2],d_parts[0]-1,d_parts[1]);	
+		new_date.setDate(new_date.getDate()+ parseInt(contract_date));		
+		var new_datepicker = (new_date.getMonth()+1).toString()+"/"+new_date.getDate().toString()+"/"+new_date.getFullYear().toString();
+		$('#datepicker_2').datepicker('setDate', new_datepicker.toString());		
+ 	});
+
+	// Start date changed
+	$('#datepicker_1').datepicker().change(function () { 
+    	//alert(document.getElementById('datepicker_1').value);
+		contract_date = $('#Contract_month').val();
+		var temp_date_2 = document.getElementById('datepicker_1').value;
+		var d_parts_2 = temp_date_2.split('/');
+    	var new_date_2 = new Date(d_parts_2[2],d_parts_2[0]-1,d_parts_2[1]);	
+		new_date_2.setDate(new_date_2.getDate()+ parseInt(contract_date));		
+		var new_datepicker_2 = (new_date_2.getMonth()+1).toString()+"/"+new_date_2.getDate().toString()+"/"+new_date_2.getFullYear().toString();
+		$('#datepicker_2').datepicker('setDate', new_datepicker_2.toString());
+	});
+
+	
+	
+	// Submit button
+	$("#submit").click(function(){
+        A_value = document.getElementById('A_value').value;
+		B_value = document.getElementById('B_value').value;
+		C_value = document.getElementById('C_value').value;
+		// Data check
+		var start_date = document.getElementById('datepicker_1').value;
+		var end_date = document.getElementById('datepicker_2').value;
+		var manually_date = document.getElementById('datepicker_3').value;		
+		Check_date(start_date, end_date, manually_date);
+		
+		// Today
+//		var dt = new Date();
+//		var Today = (dt.getMonth()+1)+"/"+dt.getDate()+"/"+dt.getFullYear();				
+		// Time Gap
+		//var start_today = DateDifference(start_date,Today);
+		end_manually = DateDifference(manually_date,end_date);		
+		total_day = DateDifference(start_date,end_date);
+		using_day = total_day - end_manually;
+		console.log(manually_date+"	"+end_manually+"	"+total_day+"	"+using_day);
+		// damages calculator
+		Calculator();
+    });
+	
+	function Calculator()
+	{
+		//[((36/30) * (730-240))+6700+1000] * (224/730) = NT 2543		
+		var temp  = ((B_value / 30) * (using_day)) + parseFloat(A_value) + parseFloat(C_value);
+		var demages = temp * (end_manually / total_day);		
+		
+		//console.log(B_value+"	"+using_day+"	"+A_value+"	"+C_value+"	"+end_manually+"	"+total_day);
+		$("#damages_text").show();
+		
+		$("#damages_val").show();
+		$("#damages_val").text(parseInt(demages));
+	}
+	
+	// Data check
+	function Check_date(start_date, end_date, manually_date)
+	{
+    	// MM/DD/YYYY
+		var dtRegex = new RegExp(/^(0?[1-9]|1[012])\/(0?[1-9]|[12][0-9]|3[01])\/[0-9]{4}$/);
+    	
+		if(!dtRegex.test(start_date)){
+        	alert("門號起始日期格式不正確")
+        	return false;
+    	}
+		
+		if(!dtRegex.test(end_date)){
+        	alert("門號結束日期格式不正確")
+        	return false;
+    	}
+		
+		if(!dtRegex.test(manually_date)){
+        	alert("解約日期格式不正確")
+        	return false;
+    	}
+		
+		
+    	var parts = start_date.split('/');
+    	var sd = new Date(parts[2],parts[0]-1,parts[1]);
+    	parts = end_date.split('/');
+    	var ed = new Date(parts[2],parts[0]-1,parts[1]);
+    	parts = manually_date.split('/');
+		var md = new Date(parts[2],parts[0]-1,parts[1]);
+		
+		if(sd > ed){
+			alert("門號結束日期不得小於開始日期");
+        	return false;
+		}else if(md > ed){
+			alert("門號解約日期不得大於合約到期日");
+        	return false;
+		}else if(sd > md){
+			alert("門號起始日期不得大於解約日期");
+        	return false;
+		}else{
+			return true;
+		}		
+	}
+	
+	// Day gap
+	function DateDifference(StartDate,EndDate)
+	{
+   		var myStartDate = new Date(StartDate);
+   		var myEndDate = new Date(EndDate);
+   		
+     	return (myEndDate - myStartDate)/ 86400000 ;
+	}	
+  } );
+  
+  </script>
+
+<!-- Facebook Tag -->
+<meta property="og:url"           content="https://www.phelps.top/" />
+<meta property="og:type"          content="website" />
+<meta property="og:title"         content="門號解約金計算機" />
+<meta property="og:description"   content="讓大家了解自己的手機門號在合約尚未到期時若想進行解約時所需要繳交的解約金是多少,藉由此計算機來幫助計算" />
+<meta property="og:image"         content="https://www.phelps.top/images/calculator_v2_wiki.png" />
+</head>
+<body>
+<div class="main">
+  <div class="header">
+    <div class="header_resize">
+      <div class="logo">
+        <h1>門號解約金計算機<br/>
+          <small>Phone penalty calculator</small></h1>
+      </div>
+      <div class="clr"></div>
+      <div class="menu">
+        <ul>
+          <li class="active"><a href="index.html"><span>首頁</span></a></li>
+          <li><a href="CHT.html"><span>中華電信</span></a></li>
+          <li><a href="TWM.html"><span>台灣大哥大</span></a></li>
+          <li><a href="FET.html"><span>遠傳電信</span></a></li>
+          <li><a href="GT.html"><span>亞太電信</span></a></li>
+          <li><a href="Tstart.html"><span>台灣之星</span></a></li>
+          <li><a href="Circles.html"><span>Circles.Life</span></a></li>
+          <li><a href="contact.html"><span>聯絡作者</span></a></li>
+        </ul>
+      </div>
+      <div class="clr"></div>
+    </div>
+  </div>
+  <div class="clr"></div>
+  <div class="hbg"></div>
+  <div class="content">
+    <div class="content_resize">
+      <div class="mainbar">
+        <div class="article">
+          <table width="100%" border="0">
+            <tr>
+              <td width="80%"><h2>說明</h2></td>
+              <td width="20%" style="float:right;">
+              <div id="fb-root"></div>
+				<script>(function(d, s, id) {
+				  var js, fjs = d.getElementsByTagName(s)[0];
+				  if (d.getElementById(id)) return;
+				  js = d.createElement(s); js.id = id;
+				  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.8";
+				  fjs.parentNode.insertBefore(js, fjs);
+				}(document, 'script', 'facebook-jssdk'));</script>  
+                
+                <div class="fb-share-button" data-href="https://deternan.github.io/Phone_damages/web_version/" data-layout="button" data-size="small" data-mobile-iframe="false"><a class="fb-xfbml-parse-ignore" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2F52.199.217.21%2FPhone_damages%2Fweb_version&amp;src=sdkpreparse">Share</a></div>
+              </td>
+            </tr>
+          </table>
+          <p>讓大家了解自己的手機門號在合約尚未到期時若想進行解約時所需要繳交的解約金是多少, 可藉由此計算機來幫助計算</p>
+          <h3>手機門號解約金通常由下列三項進行計算</h3>
+          <p> A. 終端設備及電信費用補貼款 <br />
+            B. 月租費優惠 (已享月租費優惠)<br />
+            C. 其他補助 (優惠平板購買減價)</p>
+          <h3>計算公式</h3>
+          <p>&nbsp;&nbsp;( 已享月租費優惠+終端設備補貼) * (合約剩餘日數 / 合約總長度日數 )</p>
+          <h3>範例</h3>
+          <p>某使用者門號起始的日期為2023年01月27日<br />
+            - 門號合約長度24個月 (共730天)<br />
+            - 至今(假設為 2023年10月01日) 已使用 253 天 (2023/10/01 - 2023/01/27)<br />
+            - 離合約結束時間為 477天 (730 - 253), 其違約金為:<br/>
+          </p>
+          <p>[((36/30) * 253)+6700+1000] * (477/730) = NT 5230</p>
+          <p>故若在2023年10月01日這一天解約, 則需要賠償 NT 5230</p>
+          <p>&nbsp;</p>
+          <h2>開始計算</h2>
+          <form>
+            <table style="width:100%">
+              <tr>
+                <td width="28%">門號起始日期</td>
+                <td width="72%"><input type="text" id="datepicker_1" value="01/01/2023"></td>
+              </tr>
+              <tr>
+                <td>門號結束日期</td>
+                <td><input type="text" id="datepicker_2" value="06/30/2024">&nbsp;
+                <select id="Contract_month">
+				    <option name="12M" value="365">12 個月</option>
+				    <option name="24M" value="730" selected="selected">24 個月</option>
+                    <option name="30M" value="912">30 個月</option>
+                    <option name="36M" value="1095">36 個月</option>
+				</select>
+                </td>
+              </tr>
+              <tr>
+                <td>欲解約日期</td>
+                <td><input type="text" id="datepicker_3"></td>
+              </tr>
+              <tr>
+                <td>終端設備及/或電信費用補貼款</td>
+                <td>台幣&nbsp;&nbsp;
+                  <input type="text" id="A_value" value="6700">
+                  &nbsp;元</td>
+              </tr>
+              <tr>
+                <td>月租費優惠 (已享月租費優惠)</td>
+                <td>台幣&nbsp;&nbsp;
+                  <input type="text" id="B_value" value="36">
+                  &nbsp;元 / 月</td>
+              </tr>
+              <tr>
+                <td>其他補助</td>
+                <td>台幣&nbsp;&nbsp;
+                  <input type="text" id="C_value" value="1000">
+                  &nbsp;元</td>
+              </tr>
+            </table>
+          </form>
+          <p>&nbsp;
+            <input type="submit" id="submit" value="計算">
+          </p>
+          <p class="style1" id='damages_text'>違約金為
+            <label class="values" id='damages_val'>$</label>
+            <span class="style1" id='damages_text'>元</span>
+		  </p>
+          <h2>門號合約查詢</h2>
+          <p>若不知道自己的門號合約相關資訊, 可以從上方各門號頁面直接進入進行查詢</p>
+		  <script>
+			(adsbygoogle = window.adsbygoogle || []).push({
+			google_ad_client: "ca-pub-3248373717625964",
+			enable_page_level_ads: true
+			});
+		  </script>
+        </div>
+        <div class="article"></div>
+      </div>
+      <div class="clr"></div>
+    </div>
+  </div>
+  <div class="fbg"></div>
+  <div class="footer">
+    <div class="footer_resize">
+      <p class="lf">Last updated: January 22, 2024 (每月至少更新一次)</p>
+      <p class="lf"><a href="https://www.linkedin.com/in/chao-hsuan-ko-543a2698/" target="_blank">Chao-Hsuan Ke</a> All Rights Reserved. Designed by Blue <a href="http://www.bluewebtemplates.com/">Website Templates</a></p>
+    </div>
+    <div class="clr"></div>
+  </div>
+</div>
+<div align=center></div>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+</body>
+</html>

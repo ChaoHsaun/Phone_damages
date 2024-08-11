@@ -1,0 +1,67 @@
+
+簡介
+---
+
+讓大家了解自己的手機門號在合約尚未到期時若想進行解約時所需要繳交的解約金是多少, 開發此一查詢服務讓大家可以直接查詢
+
+## 版本
+<a href="http://www.phelps.top">網址</a>
+
+
+### 違約金計算方式
+
+已中華電信 智慧大玩家 <a href="http://www.emome.net/channel?chid=829&pid=6">平板699方案</a>來看
+其合約如此份 <a href="https://drive.google.com/file/d/0B9po2jdlaNnNOVNIa1ZsX1kwMHM/view?usp=sharing"> PDF </a> 檔 
+
+* 終端設備及/或電信費用補貼款 (終端設備補貼) 	NT 6700
+* 月租費優惠 (已享月租費優惠)					NT 36/month
+* 其他補助 (優惠平板購買減價)					NT 1000
+
+公式計算
+(已享月租費優惠+終端設備補貼) * (合約剩餘日數 / 合約總長度日數)
+
+某使用者
+* 門號起始的日期為2017年01月01日
+* 門號合約長度24個月 (共730天)
+* 至今(假設為 2018年05月09日)已使用 493 天 (2018/05/09 - 2017/01/01)
+* 離合約結束時間為 237 天 (730-493); 
+
+* 終端設備補貼: NT 3,600
+* 電信費用補助款: NT 1,000
+* 月租費減收費用: NT 36/月
+
+[((36/30) * 493)+6700+1000] * (237/730) = NT 2692
+
+故若在2018年05月09日這一天解約, 則需要賠償 NT 2692
+
+
+### Reference
+日期相隔天數計算機 : [link](http://daybetween.0123456789.tw)
+
+### History
+* May 08, 2019 Add Google Adsense
+* November 28, 2018 More than 2 Million users access the web service
+* November 10, 2018 Add domain name
+* June 04, 2017		Changed file from AWS to GitHub page
+* January 20, 2017	Revised penalty function & Finished mobile version
+* January 19, 2017	Add mobile version (Responsive Web Design), Alpha version
+* January 10, 2017	Add contract length (intuition selection) function
+* January 09, 2017	1st version released
+* January 07, 2017	Prepared different phone company contract
+* January 05, 2017	alpha version released
+* January 03, 2017	Start this repository
+
+### 版權
+若各家的門號申請文件屬於機密資訊不允許被公告, 煩請告知, 將立即撤下
+
+### Comments
+如果各位使用者覺得系統有問題, 請隨時與我聯絡, thanks
+E-mail : phelpske.dev at gmail dot com
+
+### Update
+每個月會更新一次各家的門號資訊
+
+Last updated: July 03, 2019 11:41 PM
+
+
+

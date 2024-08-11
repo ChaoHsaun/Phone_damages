@@ -1,0 +1,787 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>手機門號解約金計算機, 亞太電信</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="/resources/demos/style.css">
+  <script src="https://code.jquery.com/jquery-3.1.1.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+<link href="style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/cufon-yui.js"></script>
+<script type="text/javascript" src="js/arial.js"></script>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>  
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-90045865-1"></script>
+<style type="text/css">
+
+</style>
+<script>
+// Google AdSense
+  (adsbygoogle = window.adsbygoogle || []).push({
+    google_ad_client: "ca-pub-3248373717625964",
+    enable_page_level_ads: true
+  });
+
+// Google Analytics
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-90045865-1', 'auto');
+  ga('send', 'pageview');
+  
+  // Google Global Site Tag
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-90045865-1');
+  
+
+  $(document).ready(function() {
+    $("#datepicker_1").datepicker();
+	$("#datepicker_2").datepicker();
+	$("#datepicker_3").datepicker();
+	// Today
+	var dt = new Date();
+	var Today = (dt.getMonth()+1)+"/"+dt.getDate()+"/"+dt.getFullYear();				
+	$("#datepicker_3").val(Today);	
+	
+	var A_value;
+	var B_value;
+	var C_value;
+	var today_end;
+	var end_manually;
+	var total_day;
+	
+	// Submit button
+	$("#submit").click(function(){
+        A_value = document.getElementById('A_value').value;
+		B_value = document.getElementById('B_value').value;
+		C_value = document.getElementById('C_value').value;
+		// Data check
+		var start_date = document.getElementById('datepicker_1').value;
+		var end_date = document.getElementById('datepicker_2').value;
+		var manually_date = document.getElementById('datepicker_3').value;
+
+		Check_date(start_date, end_date, manually_date);
+		
+		// Today
+//		var dt = new Date();
+//		var Today = (dt.getMonth()+1)+"/"+dt.getDate()+"/"+dt.getFullYear();				
+		// Time Gap
+		//var start_today = DateDifference(start_date,Today);
+		end_manually = DateDifference(manually_date,end_date);
+		today_end = DateDifference(Today,end_date);
+		total_day = DateDifference(start_date,end_date);
+		
+		// damages calculator
+		Calculator();
+    });
+	
+	function Calculator()
+	{
+		//[((36/30) * (730-240))+6700+1000] * (224/730) = NT 2543
+		var temp  = ((B_value / 30) * (total_day - today_end)) + parseFloat(A_value) + parseFloat(C_value);
+		var demages = temp * (end_manually / total_day);
+		
+		alert(parseInt(demages));
+	}
+	
+	// Data check
+	function Check_date(start_date, end_date, manually_date)
+	{
+    	// MM/DD/YYYY
+		var dtRegex = new RegExp(/^(0?[1-9]|1[012])\/(0?[1-9]|[12][0-9]|3[01])\/[0-9]{4}$/);
+    	
+		if(!dtRegex.test(start_date)){
+        	alert("門號起始日期格式不正確")
+        	return false;
+    	}
+		
+		if(!dtRegex.test(end_date)){
+        	alert("門號結束日期格式不正確")
+        	return false;
+    	}
+		
+		if(!dtRegex.test(manually_date)){
+        	alert("解約日期格式不正確")
+        	return false;
+    	}
+		
+		
+    	var parts = start_date.split('/');
+    	var sd = new Date(parts[2],parts[0]-1,parts[1]);
+    	parts = end_date.split('/');
+    	var ed = new Date(parts[2],parts[0]-1,parts[1]);
+    	parts = manually_date.split('/');
+		var md = new Date(parts[2],parts[0]-1,parts[1]);
+		
+		if(sd > ed){
+			alert("門號結束日期不得小於開始日期");
+        	return false;
+		}else if(md > ed){
+			alert("門號解約日期不得大於合約到期日");
+        	return false;
+		}else if(sd > md){
+			alert("門號起始日期不得大於解約日期");
+        	return false;
+		}else{
+			return true;
+		}		
+	}
+	
+	// Day gap
+	function DateDifference(StartDate,EndDate)
+	{
+   		var myStartDate = new Date(StartDate);
+   		var myEndDate = new Date(EndDate);
+   		
+     	return (myEndDate - myStartDate)/ 86400000 ;
+	}	
+  } );
+  
+  	// Radio	
+	var radio_sel_val;
+  	$(document).ready(function () {
+		$("input").change(function () {
+    	radio_sel_val = $("input[name='CHT']:checked").val();
+    	//alert(radio_sel_val);
+		
+		// 7266
+		if(radio_sel_val === "7266_1"){
+			
+		}else if(radio_sel_val === "7266_2"){
+			
+		}else if(radio_sel_val === "7266_3"){
+			
+		}else if(radio_sel_val === "7266_4"){
+			
+		}else if(radio_sel_val === "7266_5"){
+			
+		}
+		
+		});
+	});
+  
+  </script>
+</head>
+<body>
+<div class="main">
+  <div class="header">
+    <div class="header_resize">
+      <div class="logo">
+        <h1>門號解約金計算機<br/>
+        <small>Phone penalty calculator</small></h1>
+      </div>      
+      <div class="clr"></div>
+      <div class="menu">
+        <ul>
+          <li class="active"><a href="index.html"><span>首頁</span></a></li>
+          <li><a href="CHT.html"><span>中華電信</span></a></li>
+          <li><a href="TWM.html"><span>台灣大哥大</span></a></li> 
+          <li><a href="FET.html"><span>遠傳電信</span></a></li>       
+          <li><a href="GT.html"><span>亞太電信</span></a></li>   
+          <li><a href="Tstart.html"><span>台灣之星</span></a></li>                 
+          <li><a href="Circles.html"><span>Circles.Life</span></a></li>
+          <li><a href="contact.html"><span>聯絡作者</span></a></li>
+        </ul>
+      </div>
+      <div class="clr"></div>
+    </div>
+  </div>
+  <div class="clr"></div>
+  <div class="hbg"></div>
+  <div class="content">
+    <div class="content_resize">
+      <div class="mainbar">
+        <div class="article">
+          <h2>亞太電信</h2>
+          <p>&nbsp;</p>    
+          <tr>
+          	<b>官方合約查詢方式</b> <br>
+          		手機直撥：999 <br>
+				網路查詢：至<a href="https://www.aptg.com.tw/my/" target="_blank">亞太電信網站</a>，選擇「熱門服務」→「合約查詢」，登入後查詢 <br>
+				門市查詢：前往<a href="https://www.aptg.com.tw/store/" target="_blank">亞太電信門市</a>查詢合約狀態 <br>
+				APP查詢：下載APP登入後查詢
+          </tr>  
+           <p>&nbsp;</p>        
+          <table class="table">
+          <form>
+          <tr>
+              <td colspan="7" class="table-danger">
+              <div align="center" class="table-danger">5G無限可能 &nbsp;</div>
+              <div align="center" class="table-danger"></div><div align="center"></div><div align="center"></div><div align="center"></div><div align="center"></div><div align="center"></div></td>
+            </tr>
+            <tr>
+              <td width="6%" align="center" valign="middle"><div align="center"></div></td>              
+              <td width="9%" align="center" valign="middle"><div align="center"><strong><span class="style2">合約長度</span></strong></div></td>
+              <td width="8%" align="center" valign="middle"><div align="center"><strong><span class="style2">月租費</span></strong></div></td>
+              <td width="21%" align="center" valign="middle" nowrap="nowrap"><div align="center"><strong><span class="style2">終端設備及電信費用補貼款</span></strong></div></td>
+              <td width="11%" align="center" valign="middle"><div align="center"><strong><span class="style2">月租費優惠</span></strong><strong><span class="style2"> </span>/ 月</strong></div></td>
+            </tr>                     
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">24 個月 &nbsp;&nbsp;&nbsp;              
+              <a href="https://drive.google.com/file/d/1paCdaX38bdYMN8ivrdSQ6heqsdApHBqV" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a></div></td>
+              <td><div align="center">599</div></td>
+              <td><div align="center">7000</div></td>
+              <td><div align="center">250</div></td>
+            </tr>
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">24 個月&nbsp;&nbsp;&nbsp;              
+              <a href="https://drive.google.com/file/d/1eZMjUBkeQWQWx830bZDEjfmAGwORy3xd" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a></div></td>
+              <td><div align="center">799</div></td>
+              <td><div align="center">8500</div></td>
+              <td><div align="center">250</div></td>
+            </tr>
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">24 個月&nbsp;&nbsp;&nbsp;              
+              <a href="https://drive.google.com/file/d/1F670o5yth9MZB3j0WxmY_z87CPTVg5Cl" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a></div></td>
+              <td><div align="center">999</div></td>
+              <td><div align="center">13000</div></td>
+              <td><div align="center">250</div></td>
+            </tr>
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">24 個月&nbsp;&nbsp;&nbsp;              
+              <a href="https://drive.google.com/file/d/1BWx65AcTbgYU8XL4BI8q0G6MJMezUyJn" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a></div></td>
+              <td><div align="center">1199</div></td>
+              <td><div align="center">15000</div></td>
+              <td><div align="center">250</div></td>
+            </tr>
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">24 個月&nbsp;&nbsp;&nbsp;              
+              <a href="https://drive.google.com/file/d/174eCTIqY3ztdYHPBw3vfOe9K1vhx4BTU" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a></div></td>
+              <td><div align="center">1399</div></td>
+              <td><div align="center">17000</div></td>
+              <td><div align="center">250</div></td>
+            </tr>
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">24 個月&nbsp;&nbsp;&nbsp;              
+              <a href="https://drive.google.com/file/d/1g5yq52nsLZckpKjK5olQP48GuAZx4dGm" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a></div></td>
+              <td><div align="center">1799</div></td>
+              <td><div align="center">20000</div></td>
+              <td><div align="center">250</div></td>
+            </tr>
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">24 個月&nbsp;&nbsp;&nbsp;              
+              <a href="https://drive.google.com/file/d/137pEKwkdkHshXI_S0hOfuqN8AdKlUTgZ" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a></div></td>
+              <td><div align="center">2699</div></td>
+              <td><div align="center">26000</div></td>
+              <td><div align="center">250</div></td>
+            </tr>
+          <tr>
+          <tr>
+              <td colspan="7" class="table-danger">
+              <div align="center" class="table-danger">壹起省 &nbsp;</div>
+              <div align="center" class="table-danger"></div><div align="center"></div><div align="center"></div><div align="center"></div><div align="center"></div><div align="center"></div></td>
+            </tr>
+            <tr>
+              <td width="6%" align="center" valign="middle"><div align="center"></div></td>              
+              <td width="9%" align="center" valign="middle"><div align="center"><strong><span class="style2">合約長度</span></strong></div></td>
+              <td width="8%" align="center" valign="middle"><div align="center"><strong><span class="style2">月租費</span></strong></div></td>
+              <td width="21%" align="center" valign="middle" nowrap="nowrap"><div align="center"><strong><span class="style2">終端設備及電信費用補貼款</span></strong></div></td>
+              <td width="11%" align="center" valign="middle"><div align="center"><strong><span class="style2">月租費優惠</span></strong><strong><span class="style2"> </span>/ 月</strong></div></td>
+            </tr>                     
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">30 個月 &nbsp;&nbsp;&nbsp;              
+              <a href="https://drive.google.com/open?id=1YJ-9V3azXYauAk5t182LrmgTiudeQMjj" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a></div></td>
+              <td><div align="center">396</div></td>
+              <td><div align="center">5000</div></td>
+              <td><div align="center">250</div></td>
+            </tr>
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">30 個月&nbsp;&nbsp;&nbsp;              
+              <a href="https://drive.google.com/open?id=109N3DBws4qcMtK-Eact6cytfAlPJHtTG" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a></div></td>
+              <td><div align="center">566</div></td>
+              <td><div align="center">8000</div></td>
+              <td><div align="center">250</div></td>
+            </tr>
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">30 個月&nbsp;&nbsp;&nbsp;              
+              <a href="https://drive.google.com/open?id=16P4F6oJkNFWlbhqaR-UyQ7yF2OVhLBqI" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a></div></td>
+              <td><div align="center">756</div></td>
+              <td><div align="center">12000</div></td>
+              <td><div align="center">250</div></td>
+            </tr>
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">30 個月&nbsp;&nbsp;&nbsp;              
+              <a href="https://drive.google.com/open?id=1WXA0QgNcss6FiKjDnGQe2tPKmeVBkUHp" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a></div></td>
+              <td><div align="center">916</div></td>
+              <td><div align="center">12000</div></td>
+              <td><div align="center">250</div></td>
+            </tr>
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">30 個月&nbsp;&nbsp;&nbsp;              
+              <a href="https://drive.google.com/open?id=1xjGm7tBHGh4057pa5OyVJAYRUiX-wyFO" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a></div></td>
+              <td><div align="center">1076</div></td>
+              <td><div align="center">15000</div></td>
+              <td><div align="center">250</div></td>
+            </tr>
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">30 個月&nbsp;&nbsp;&nbsp;              
+              <a href="https://drive.google.com/open?id=1coxr7luagdMLQMLVVRKzOd73qcEOhHeo" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a></div></td>
+              <td><div align="center">1256</div></td>
+              <td><div align="center">20000</div></td>
+              <td><div align="center">250</div></td>
+            </tr>
+          <tr>
+              <td colspan="7" class="table-danger">
+              <div align="center" class="table-danger">999 吃到飽 &nbsp;(Q1591 Q1592 Q1593)&nbsp;&nbsp;&nbsp;&nbsp;
+              <a href="http://event.aptg.com.tw/20161202" target="_blank">link</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <a href="https://drive.google.com/file/d/0B9po2jdlaNnNZEZsRjhFYU96azg/view?usp=sharing" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a>              </div>
+              <div align="center" class="table-danger"></div><div align="center"></div><div align="center"></div><div align="center"></div><div align="center"></div><div align="center"></div></td>
+            </tr>
+            <tr>
+              <td width="6%" align="center" valign="middle"><div align="center"></div></td>              
+              <td width="9%" align="center" valign="middle"><div align="center"><strong><span class="style2">合約長度</span></strong></div></td>
+              <td width="8%" align="center" valign="middle"><div align="center"><strong><span class="style2">月租費</span></strong></div></td>
+              <td width="21%" align="center" valign="middle" nowrap="nowrap"><div align="center"><strong><span class="style2">終端設備及電信費用補貼款</span></strong></div></td>
+              <td width="11%" align="center" valign="middle"><div align="center"><strong><span class="style2">月租費優惠</span></strong><strong><span class="style2"> </span>/ 月</strong></div></td>
+            </tr>                     
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">999</div></td>
+              <td><div align="center">9200</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>
+              <td colspan="7" class="table-danger">
+              <div align="center" class="table-danger">4G 598 吃到飽 &nbsp;(Q1625 Q1626)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <a href="https://drive.google.com/open?id=0B9po2jdlaNnNQjExUWJQTDFBTHc" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a>              </div>
+              <div align="center" class="table-danger"></div><div align="center"></div><div align="center"></div><div align="center"></div><div align="center"></div><div align="center"></div></td>
+            </tr>
+            <tr>
+              <td width="6%" align="center" valign="middle"><div align="center"></div></td>              
+              <td width="9%" align="center" valign="middle"><div align="center"><strong><span class="style2">合約長度</span></strong></div></td>
+              <td width="8%" align="center" valign="middle"><div align="center"><strong><span class="style2">月租費</span></strong></div></td>
+              <td width="21%" align="center" valign="middle" nowrap="nowrap"><div align="center"><strong><span class="style2">終端設備及電信費用補貼款</span></strong></div></td>
+              <td width="11%" align="center" valign="middle"><div align="center"><strong><span class="style2">月租費優惠</span></strong><strong><span class="style2"> </span>/ 月</strong></div></td>
+            </tr>                     
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">598</div></td>
+              <td><div align="center">11000</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>
+              <td colspan="7" class="table-danger">
+              <div align="center" class="table-danger">GT 自由選24 期專案 &nbsp;(Q0027)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <a href="https://drive.google.com/file/d/0B9po2jdlaNnNY0I0andHcHdNR2c/view?usp=sharing" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a>              </div>
+              <div align="center" class="table-danger"></div><div align="center"></div><div align="center"></div><div align="center"></div><div align="center"></div><div align="center"></div></td>
+            </tr>
+            <tr>
+              <td width="6%" align="center" valign="middle"><div align="center"></div></td>              
+              <td width="9%" align="center" valign="middle"><div align="center"><strong><span class="style2">合約長度</span></strong></div></td>
+              <td width="8%" align="center" valign="middle"><div align="center"><strong><span class="style2">月租費</span></strong></div></td>
+              <td width="21%" align="center" valign="middle" nowrap="nowrap"><div align="center"><strong><span class="style2">終端設備及電信費用補貼款</span></strong></div></td>
+              <td width="11%" align="center" valign="middle"><div align="center"><strong><span class="style2">月租費優惠</span></strong><strong><span class="style2"> </span>/ 月</strong></div></td>
+            </tr>
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">24 個月</div></td>
+              <td><div align="center">898</div></td>
+              <td><div align="center">11500</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">24 個月</div></td>
+              <td><div align="center">1098</div></td>
+              <td><div align="center">15500</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">24 個月</div></td>
+              <td><div align="center">1398</div></td>
+              <td><div align="center">19000</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">24 個月</div></td>
+              <td><div align="center">1598</div></td>
+              <td><div align="center">20000</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">24 個月</div></td>
+              <td><div align="center">1798</div></td>
+              <td><div align="center">22000</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">24 個月</div></td>
+              <td><div align="center">2098</div></td>
+              <td><div align="center">23000</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">24 個月</div></td>
+              <td><div align="center">2598</div></td>
+              <td><div align="center">27000</div></td>
+              <td><div align="center">0</div></td>
+            </tr>            
+          	<tr>
+              <td colspan="7" class="table-danger">
+              <div align="center" class="table-danger">全國悠遊網 Gt 30 期專案 &nbsp;(Q0006)&nbsp;&nbsp;&nbsp;&nbsp;
+              <a href="http://www.aptg.com.tw/my/4gPrice_main.htm" target="_blank">link</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <a href="https://drive.google.com/file/d/0B9po2jdlaNnNelNzbWtlUlpuVzA/view?usp=sharing" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a>              </div>
+              <div align="center" class="table-danger"></div><div align="center"></div><div align="center"></div><div align="center"></div><div align="center"></div><div align="center"></div></td>
+            </tr>
+            <tr>
+              <td width="6%" align="center" valign="middle"><div align="center"></div></td>              
+              <td width="9%" align="center" valign="middle"><div align="center"><strong><span class="style2">合約長度</span></strong></div></td>
+              <td width="8%" align="center" valign="middle"><div align="center"><strong><span class="style2">月租費</span></strong></div></td>
+              <td width="21%" align="center" valign="middle" nowrap="nowrap"><div align="center"><strong><span class="style2">終端設備及電信費用補貼款</span></strong></div></td>
+              <td width="11%" align="center" valign="middle"><div align="center"><strong><span class="style2">月租費優惠</span></strong><strong><span class="style2"> </span>/ 月</strong></div></td>
+            </tr>                     
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">498</div></td>
+              <td><div align="center">9200</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">598</div></td>
+              <td><div align="center">10000</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>
+              <td><div align="center"><br></div>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">698</div></td>
+              <td><div align="center">10700</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>
+              <td><div align="center"><br></div>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">898</div></td>
+              <td><div align="center">12500</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>
+              <td><div align="center"><br></div>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">1098</div></td>
+              <td><div align="center">15500</div></td>
+              <td><div align="center">0</div></td>
+            </tr>            
+            <tr>              
+              <td><div align="center"><br></div>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">1398</div></td>
+              <td><div align="center">19000</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>
+              <td><div align="center"><br></div>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">1598</div></td>
+              <td><div align="center">20000</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>
+              <td><div align="center"><br></div>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">1798</div></td>
+              <td><div align="center">22000</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>
+              <td><div align="center"><br></div>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">1998</div></td>
+              <td><div align="center">23000</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>
+              <td><div align="center"><br></div>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">2598</div></td>
+              <td><div align="center">27000</div></td>
+              <td><div align="center">0</div></td>
+            </tr>           
+            <tr>
+              <td colspan="7" class="table-danger">
+              <div align="center" class="table-danger">全國壹大網 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <a href="http://www.aptg.com.tw/my/4gPrice_399.htm" target="_blank">link</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <a href="https://drive.google.com/file/d/0B9po2jdlaNnNV3NEcHY4T003dkU/view?usp=sharing" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a>              </div>
+              <div align="center" class="table-danger"></div><div align="center"></div><div align="center"></div><div align="center"></div><div align="center"></div><div align="center"></div></td>
+            </tr>
+            <tr>
+              <td width="6%" align="center" valign="middle"><div align="center"></div></td>              
+              <td width="9%" align="center" valign="middle"><div align="center"><strong><span class="style2">合約長度</span></strong></div></td>
+              <td width="8%" align="center" valign="middle"><div align="center"><strong><span class="style2">月租費</span></strong></div></td>
+              <td width="21%" align="center" valign="middle" nowrap="nowrap"><div align="center"><strong><span class="style2">終端設備及電信費用補貼款</span></strong></div></td>
+              <td width="11%" align="center" valign="middle"><div align="center"><strong><span class="style2">月租費優惠 </span>/ 月</strong></div></td>
+            </tr>
+            <tr>
+              <td> <div align="center"></div></td>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">399</div></td>
+              <td><div align="center">8000</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>
+              <td> <div align="center"></div></td>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">699</div></td>
+              <td><div align="center">11000</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>
+              <td> <div align="center"></div></td>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">999</div></td>
+              <td><div align="center">15000</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>
+              <td> <div align="center"></div></td>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">1299</div></td>
+              <td><div align="center">18000</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>
+              <td> <div align="center"></div></td>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">1599</div></td>
+              <td><div align="center">19000</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+             <tr>
+              <td colspan="7" class="table-danger">
+              <div align="center" class="table-danger">全國壹大網進階版 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <a href="http://www.aptg.com.tw/my/4gplus_399.htm" target="_blank">link</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <a href="https://drive.google.com/open?id=0B9po2jdlaNnNZlpqTndubWtXYjQ" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a>              </div>
+              <div align="center" class="table-danger"></div><div align="center"></div><div align="center"></div><div align="center"></div><div align="center"></div><div align="center"></div></td>
+            </tr>
+            <tr>
+              <td width="6%" align="center" valign="middle"><div align="center"></div></td>              
+              <td width="9%" align="center" valign="middle"><div align="center"><strong><span class="style2">合約長度</span></strong></div></td>
+              <td width="8%" align="center" valign="middle"><div align="center"><strong><span class="style2">月租費</span></strong></div></td>
+              <td width="21%" align="center" valign="middle" nowrap="nowrap"><div align="center"><strong><span class="style2">終端設備及電信費用補貼款</span></strong></div></td>
+              <td width="11%" align="center" valign="middle"><div align="center"><strong><span class="style2">月租費優惠 </span>/ 月</strong></div></td>
+            </tr>
+            <tr>
+              <td> <div align="center"></div></td>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">399</div></td>
+              <td><div align="center">8500</div></td>
+              <td><div align="center">20</div></td>
+            </tr>
+            <tr>
+              <td> <div align="center"></div></td>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">699</div></td>
+              <td><div align="center">12000</div></td>
+              <td><div align="center">20</div></td>
+            </tr>
+            <tr>
+              <td> <div align="center"></div></td>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">999</div></td>
+              <td><div align="center">165000</div></td>
+              <td><div align="center">20</div></td>
+            </tr>  
+             <tr>
+              <td colspan="7" class="table-danger">
+              <div align="center" class="table-danger">全國壹網打勁 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <a href="https://www.aptg.com.tw/my/4g/energetic/phoneplans/" target="_blank">link</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <a href="https://drive.google.com/open?id=0B9po2jdlaNnNZlpqTndubWtXYjQ" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a>              </div>
+              <div align="center" class="table-danger"></div><div align="center"></div><div align="center"></div><div align="center"></div><div align="center"></div><div align="center"></div></td>
+            </tr>
+            <tr>
+              <td width="6%" align="center" valign="middle"><div align="center"></div></td>              
+              <td width="9%" align="center" valign="middle"><div align="center"><strong><span class="style2">合約長度</span></strong></div></td>
+              <td width="8%" align="center" valign="middle"><div align="center"><strong><span class="style2">月租費</span></strong></div></td>
+              <td width="21%" align="center" valign="middle" nowrap="nowrap"><div align="center"><strong><span class="style2">終端設備及電信費用補貼款</span></strong></div></td>
+              <td width="11%" align="center" valign="middle"><div align="center"><strong><span class="style2">月租費優惠 </span>/ 月</strong></div></td>
+            </tr>
+            <tr>
+              <td> <div align="center"></div></td>
+              <td><div align="center">24 個月</div></td>
+              <td><div align="center">296</div></td>
+              <td><div align="center">2400</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>
+              <td> <div align="center"></div></td>
+              <td><div align="center">24 個月</div></td>
+              <td><div align="center">396</div></td>
+              <td><div align="center">3600</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>
+              <td> <div align="center"></div></td>
+              <td><div align="center">24 個月</div></td>
+              <td><div align="center">496</div></td>
+              <td><div align="center">4800</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>
+              <td> <div align="center"></div></td>
+              <td><div align="center">24 個月</div></td>
+              <td><div align="center">596</div></td>
+              <td><div align="center">8000</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>
+              <td> <div align="center"></div></td>
+              <td><div align="center">24 個月</div></td>
+              <td><div align="center">796</div></td>
+              <td><div align="center">12000</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+            <tr>
+              <td> <div align="center"></div></td>
+              <td><div align="center">24 個月</div></td>
+              <td><div align="center">996</div></td>
+              <td><div align="center">14000</div></td>
+              <td><div align="center">0</div></td>
+            </tr>  
+            <tr>
+              <td> <div align="center"></div></td>
+              <td><div align="center">24 個月</div></td>
+              <td><div align="center">1196</div></td>
+              <td><div align="center">16000</div></td>
+              <td><div align="center">0</div></td>
+            </tr>  
+            <tr>
+              <td> <div align="center"></div></td>
+              <td><div align="center">24 個月</div></td>
+              <td><div align="center">1396</div></td>
+              <td><div align="center">18000</div></td>
+              <td><div align="center">0</div></td>
+            </tr>      
+             <tr>
+             <tr>
+              <td colspan="7" class="table-danger">
+              <div align="center" class="table-danger">全國壹網打勁  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <a href="https://www.aptg.com.tw/my/4g/energetic/phoneplans/" target="_blank">link</a></div>
+              <div align="center" class="table-danger"></div><div align="center"></div><div align="center"></div><div align="center"></div><div align="center"></div><div align="center"></div></td>
+            </tr>
+            <tr>
+              <td width="6%" align="center" valign="middle"><div align="center"></div></td>              
+              <td width="9%" align="center" valign="middle"><div align="center"><strong><span class="style2">合約長度</span></strong></div></td>
+              <td width="8%" align="center" valign="middle"><div align="center"><strong><span class="style2">月租費</span></strong></div></td>
+              <td width="21%" align="center" valign="middle" nowrap="nowrap"><div align="center"><strong><span class="style2">終端設備及電信費用補貼款</span></strong></div></td>
+              <td width="11%" align="center" valign="middle"><div align="center"><strong><span class="style2">月租費優惠 </span>/ 月</strong></div></td>
+            </tr>
+            <tr>
+              <td> <div align="center"><a href="https://drive.google.com/file/d/1pKwwbPtp0Y7npCHMGzOllQ_fvIvk6ogk" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a></div></td>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">396</div></td>
+              <td><div align="center">5000</div></td>
+              <td><div align="center">250</div></td>
+            </tr>
+            <tr>
+              <td> <div align="center"><a href="https://drive.google.com/file/d/1IJPxaUDxIozxq36iBhypUNuDHrbKUcMS" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a></div></td>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">499</div></td>
+              <td><div align="center">8000</div></td>
+              <td><div align="center">250</div></td>
+            </tr>
+            <tr>
+              <td> <div align="center"><a href="https://drive.google.com/file/d/1P78wTaIUFd34ltqZzedyX3pE50W8D59E" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a></div></td>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">596</div></td>
+              <td><div align="center">8000</div></td>
+              <td><div align="center">250</div></td>
+            </tr>
+            <tr>
+              <td> <div align="center"><a href="https://drive.google.com/file/d/1Ll3_qoVANJNQQYTBn8mTFhl5s8Dz3wxc" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a></div></td>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">796</div></td>
+              <td><div align="center">12000</div></td>
+              <td><div align="center">250</div></td>
+            </tr>
+            <tr>
+             <td> <div align="center"><a href="https://drive.google.com/file/d/1TQl4803OYDzAoHX5yfZ7u77VdmA0XVCy" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a></div></td>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">996</div></td>
+              <td><div align="center">14000</div></td>
+              <td><div align="center">250</div></td>
+            </tr>
+            <tr>
+              <td> <div align="center"><a href="https://drive.google.com/file/d/1bHggX0SIIk6RZWE1UF2nbphmzVwTov4v" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a></div></td>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">1196</div></td>
+              <td><div align="center">16000</div></td>
+              <td><div align="center">250</div></td>
+            </tr>
+            <tr>
+              <td> <div align="center"><a href="https://drive.google.com/file/d/1GXkt-o-WTu-eNbWAYL9jGb-1K8pdObG8" target="_blank"><img src="images/pdf.png" width="16" height="16" valign="top"/></a></div></td>
+              <td><div align="center">30 個月</div></td>
+              <td><div align="center">1396</div></td>
+              <td><div align="center">18000</div></td>
+              <td><div align="center">250</div></td>
+            </tr>  
+            
+             <tr>
+
+              <td colspan="7" class="table-danger">
+              <div align="center" class="table-danger">新戶 199 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <a href="https://www.aptg.com.tw/event/ESHOP/activity/?utm_campaign=201910_ONLINESHOP199" target="_blank">link</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+              <div align="center" class="table-danger"></div><div align="center"></div><div align="center"></div><div align="center"></div><div align="center"></div><div align="center"></div></td>
+            </tr>
+            <tr>
+              <td width="6%" align="center" valign="middle"><div align="center"></div></td>              
+              <td width="9%" align="center" valign="middle"><div align="center"><strong><span class="style2">合約長度</span></strong></div></td>
+              <td width="8%" align="center" valign="middle"><div align="center"><strong><span class="style2">月租費</span></strong></div></td>
+              <td width="21%" align="center" valign="middle" nowrap="nowrap"><div align="center"><strong><span class="style2">終端設備及電信費用補貼款</span></strong></div></td>
+              <td width="11%" align="center" valign="middle"><div align="center"><strong><span class="style2">月租費優惠 </span>/ 月</strong></div></td>
+            </tr>
+            <tr>
+              <td> <div align="center"></div></td>
+              <td><div align="center">18 個月</div></td>
+              <td><div align="center">199</div></td>
+              <td><div align="center">3600</div></td>
+              <td><div align="center">0</div></td>
+            </tr>
+    
+            </form>
+          </table>
+          <p>&nbsp;</p>
+          
+        </div>
+      </div>
+      <div class="clr"></div>
+    </div>
+  </div>
+  <div class="fbg"></div>
+  <div class="footer">
+    <div class="footer_resize"></div>
+    <div class="clr"></div>
+  </div>
+</div>
+<div align=center></div>
+</body>
+</html>
